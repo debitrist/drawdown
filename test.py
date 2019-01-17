@@ -39,17 +39,16 @@ def create_drawdowns(df, period):
     ##filling up NATs
     ddend.append(df.index[-1])
     ddendpx.append(df['Close'].iloc[-1])
-    df1 = pd.concat([pd.Series(ddstart), pd.Series(ddend), pd.Series(ddstartpx),pd.Series(ddendpx)], ignore_index=True, axis=1)
-    df1['MaxDDPrice'] = [df['Close'].loc[x:y].min() for x,y in zip(df1[0],df1[1])]
-    df1['MaxDDDates'] = [df[df['Close']==x].index.tolist()[0] for x in df1['MaxDDPrice']]
+    maxddpx = [df['Close'].loc[x:y].min() for x,y in zip(ddstart,ddend)]
+    maxdd = [df[df['Close']==x].index.tolist()[0] for x in maxddpx]
+    df1 = pd.concat([pd.Series(ddstart, name="Start"), pd.Series(maxdd, name="Max DD"), pd.Series(ddend, name="End"), pd.Series(ddstartpx, name="StartPx"),pd.Series(maxddpx,name="TroughPx"),pd.Series(ddendpx,name="EndPx")], axis=1)
+    df1['DD%']=(df1['TroughPx']/df1['StartPx']-1)*100
     print(df1)
     DDSummary = pd.DataFrame(index=df_idx)
     DDSummary['% DD'] = drawdown
     DDSummary['Duration'] = duration
     DDSummary['Close1'] = df['Close']
     DDSummary[RHName] = pd.Series(rollinghigh, index=df_idx)
-    DDSummary.to_csv('out.csv')
-
 
 create_drawdowns(Stock, 250)
 
