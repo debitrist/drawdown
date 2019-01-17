@@ -1,5 +1,6 @@
 import pandas as pd
 import pandas_datareader.data as web
+import numpy as np
 from datetime import datetime, timedelta
 
 end1 = datetime.now()
@@ -40,6 +41,7 @@ def create_drawdowns(df, period):
     ddendpx.append(df['Close'].iloc[-1])
     df1 = pd.concat([pd.Series(ddstart), pd.Series(ddend), pd.Series(ddstartpx),pd.Series(ddendpx)], ignore_index=True, axis=1)
     df1['MaxDDPrice'] = [df['Close'].loc[x:y].min() for x,y in zip(df1[0],df1[1])]
+    df1['MaxDDDates'] = [df[df['Close']==x].index.tolist()[0] for x in df1['MaxDDPrice']]
     print(df1)
     DDSummary = pd.DataFrame(index=df_idx)
     DDSummary['% DD'] = drawdown
